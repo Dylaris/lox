@@ -51,20 +51,15 @@ class Parser {
     }
 
     // statement      ->exprStmt 
+    //                | ifStmt
     //                | printStmt
     //                | block ;
     private Stmt statement() {
+        if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
         if (match(LEFT_BRACE)) return new Stmt.Block(block());
 
         return expressionStatement();
-    }
-
-    // printStmt      ->"print" expression ";" ;
-    private Stmt printStatement() {
-        Expr value = expression();
-        consume(SEMICOLON, "Expect ';' after value.");
-        return new Stmt.Print(value);
     }
 
     // exprStmt       ->expression ";" ; 
@@ -72,6 +67,28 @@ class Parser {
         Expr expr = expression();
         consume(SEMICOLON, "Expect ';' after expression.");
         return new Stmt.Expression(expr);
+    }
+
+    // ifStmt         ->"if" "(" expression ")" statement ( "else" statement )? ;
+    private Stmt ifStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'if'.");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after if condition.");
+
+        Stmt thenBranch = statement();
+        Stmt elseBranch = null;
+        if (match(ELSE)) {
+            elseBranch = statement();
+        }
+
+        return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+
+    // printStmt      ->"print" expression ";" ;
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
     }
 
     // block          ->"{" declaration* "}" ;
@@ -92,10 +109,9 @@ class Parser {
     }
 
     // assignment     ->IDENTIFIER "=" assignment
-    //                | equality ;
+    //                | logic_or ;
     private Expr assignment() {
-        Expr expr = equality();
-
+        Expr expr = or();
         if (match(EQUAL)) {
             Token equals = previous();
             Expr value = assignment();
@@ -106,6 +122,30 @@ class Parser {
             }
 
             error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
+    // logic_or       ->logic_and ( "or" logic_and )* ;
+    private Expr or() {
+        Expr expr = and();
+        if (match(OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    // logic_and      ->equality ( "and" equality )* ;
+    private Expr and() {
+        Expr expr = equality();
+        if (match(AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
         }
 
         return expr;
