@@ -16,7 +16,7 @@ class Parser {
         this.tokens = tokens;
     }
 
-    // program        ->declaration* EOF ;
+    // program        -> declaration* EOF ;
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
@@ -26,10 +26,13 @@ class Parser {
         return statements;
     }
 
-    // declaration    ->varDecl
-    //                | statement ;
+    // declaration    -> classDecl
+    //                 | funDecl
+    //                 | varDecl
+    //                 | statement ;
     private Stmt declaration() {
         try {
+            if (match(CLASS)) return classDeclaration();
             if (match(FUN)) return function("function");
             if (match(VAR)) return varDeclaration();
             return statement();
@@ -39,7 +42,22 @@ class Parser {
         }
     }
 
-    // varDecl        ->"var" IDENTIFIER ( "=" expression )? ";" ;
+    // classDecl      -> "class" IDENTIFIER "{" function* "}" ;
+    private Stmt classDeclaration() {
+        Token name = consume(IDENTIFIER, "Expect class name.");
+        consume(LEFT_BRACE, "Expect '{' before class body.");
+
+        List<Stmt.Function> methods = new ArrayList<>();
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            methods.add(function("method"));
+        }
+
+        consume(RIGHT_BRACE, "Expect '}' after class body.");
+
+        return new Stmt.Class(name, methods);
+    }
+
+    // varDecl        -> "var" IDENTIFIER ( "=" expression )? ";" ;
     private Stmt varDeclaration() {
         Token name = consume(IDENTIFIER, "Expect variable name.");
 
@@ -197,13 +215,13 @@ class Parser {
         return statements;
     }
 
-    // expression     → assignment ;
+    // expression     -> assignment ;
     private Expr expression() {
         return assignment();
     }
 
-    // assignment     ->IDENTIFIER "=" assignment
-    //                | logic_or ;
+    // assignment     -> ( call "." )? IDENTIFIER "=" assignment
+    //                 | logic_or ;
     private Expr assignment() {
         Expr expr = or();
         if (match(EQUAL)) {
@@ -213,6 +231,9 @@ class Parser {
             if (expr instanceof Expr.Variable) {
                 Token name = ((Expr.Variable)expr).name;
                 return new Expr.Assign(name, value);
+            } else if (expr instanceof Expr.Get) {
+                Expr.Get get = (Expr.Get)expr;
+                return new Expr.Set(get.object, get.name, value);
             }
 
             error(equals, "Invalid assignment target.");
@@ -221,7 +242,7 @@ class Parser {
         return expr;
     }
 
-    // logic_or       ->logic_and ( "or" logic_and )* ;
+    // logic_or       -> logic_and ( "or" logic_and )* ;
     private Expr or() {
         Expr expr = and();
         if (match(OR)) {
@@ -297,7 +318,7 @@ class Parser {
         return expr;
     }
 
-    // unary          → ( "!" | "-" ) unary | call ;
+    // unary          -> ( "!" | "-" ) unary | call ;
     private Expr unary() {
         if (match(BANG, MINUS)) {
             Token operator = previous();
@@ -308,13 +329,17 @@ class Parser {
         return call();
     }
 
-    // call           ->primary ( "(" arguments? ")" )* ;
+    // call           -> primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
     private Expr call() {
         Expr expr = primary();
 
         while (true) {
             if (match(LEFT_PAREN)) {
                 expr = finishCall(expr);
+            } else if (match(DOT)) {
+                Token name = consume(IDENTIFIER,
+                        "Expect  property name after '.'.");
+                expr = new Expr.Get(expr, name);
             } else {
                 break;
             }
@@ -348,6 +373,10 @@ class Parser {
 
         if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
+        }
+
+        if (match(THIS)) {
+            return new Expr.This(previous());
         }
 
         if (match(IDENTIFIER)) {
