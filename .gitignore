@@ -1,3 +1,6 @@
 jlox/*.class
 jlox/tool/*.class
+
+clox/*.o
+
 test.lox
