@@ -1,7 +1,7 @@
 CC 	   = gcc
 CFLAGS = -Wall -Wextra -ggdb -std=c99
-TARGET = clox
-SRC    = main.c chunk.c memory.c debug.c value.c
+TARGET = main
+SRC    = main.c chunk.c memory.c debug.c value.c vm.c
 OBJ    = $(SRC:.c=.o)
 
 all: $(TARGET)
