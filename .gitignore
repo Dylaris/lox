@@ -2,5 +2,6 @@ jlox/*.class
 jlox/tool/*.class
 
 clox/*.o
+clox/main
 
 test.lox
