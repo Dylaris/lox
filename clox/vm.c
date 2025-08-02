@@ -46,7 +46,7 @@ static InterpretResult run(void)
     for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
         // trace stack
-        printf("          ");
+        printf(">>>STACK: ");
         for (Value *slot = vm.stack; slot < vm.stackTop; slot++) {
             printf("[ ");
             printValue(*slot);
@@ -86,6 +86,19 @@ static InterpretResult run(void)
 
 InterpretResult interpret(const char *source)
 {
-    compile(source);
-    return INTERPRET_OK;
+    Chunk chunk;
+    initChunk(&chunk);
+
+    if (!compile(source, &chunk)) {
+        freeChunk(&chunk);
+        return INTERPRET_COMPILE_ERROR;
+    }
+
+    vm.chunk = &chunk;
+    vm.ip = vm.chunk->code;
+
+    InterpretResult result = run();
+
+    freeChunk(&chunk);
+    return result;
 }
