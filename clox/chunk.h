@@ -6,10 +6,17 @@
 
 typedef enum {
     OP_CONSTANT, // [opcode] [constant_index]
+    OP_NIL,      // [opcode]
+    OP_TRUE,     // [opcode]
+    OP_FALSE,    // [opcode]
+    OP_EQUAL,    // [opcode]
+    OP_GREATER,  // [opcode]
+    OP_LESS,     // [opcode]
     OP_ADD,      // [opcode]
     OP_SUBTRACT, // [opcode]  
     OP_MULTIPLY, // [opcode]
     OP_DIVIDE,   // [opcode]
+    OP_NOT,      // [opcode]
     OP_NEGATE,   // [opcode]
     OP_RETURN,   // [opcode]
 } OpCode;
