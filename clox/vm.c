@@ -34,11 +34,13 @@ void initVM(void)
 {
     resetStack();
     vm.objects = NULL;
+    initTable(&vm.strings);
 }
 
 void freeVM(void)
 {
     freeObjects();
+    freeTable(&vm.strings);
 }
 
 void push(Value value)
