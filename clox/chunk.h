@@ -5,10 +5,14 @@
 #include "value.h"
 
 typedef enum {
-    OP_CONSTANT, // [opcode] [constant_index]
+    OP_CONSTANT, // [opcode] [index]
     OP_NIL,      // [opcode]
     OP_TRUE,     // [opcode]
     OP_FALSE,    // [opcode]
+    OP_POP,      // [opcode]
+    OP_SET_GLOBAL, // [opcode] [index]
+    OP_GET_GLOBAL, // [opcode] [index]
+    OP_DEFINE_GLOBAL, // [opcode] [index]
     OP_EQUAL,    // [opcode]
     OP_GREATER,  // [opcode]
     OP_LESS,     // [opcode]
@@ -18,6 +22,7 @@ typedef enum {
     OP_DIVIDE,   // [opcode]
     OP_NOT,      // [opcode]
     OP_NEGATE,   // [opcode]
+    OP_PRINT,    // [opcode]
     OP_RETURN,   // [opcode]
 } OpCode;
 
