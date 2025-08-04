@@ -27,6 +27,7 @@ statement      -> exprStmt
                 | forStmt
                 | ifStmt
                 | printStmt
+                | printlnStmt
                 | returnStmt
                 | whileStmt
                 | block ;
@@ -36,6 +37,7 @@ forStmt        -> "for" "(" ( valDecl | exprStmt | ";" )
                   expression? ")" statement;
 ifStmt         -> "if" "(" expression ")" statement ( "else" statement )? ;
 printStmt      -> "print" expression ";" ;
+printlnStmt    -> "println" expression ";" ;
 returnStmt     -> "return" expression? ";" ;
 whileStmt      -> "while" "(" expression ")" statement ;
 block          -> "{" declaration* "}" ;
