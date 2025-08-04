@@ -133,8 +133,18 @@ static InterpretResult run(void)
             pop();
             break;
 
+        case OP_SET_LOCAL: {
+            uint8_t slot = READ_BYTE();
+            vm.stack[slot] = peek(0);
+        } break;
+
+        case OP_GET_LOCAL: {
+            uint8_t slot = READ_BYTE();
+            push(vm.stack[slot]);
+        } break;
+
         case OP_SET_GLOBAL: {
-            // The variable setting will not pop the value fromt the stack.
+            // The variable setting will not pop the value from the stack.
             // Remember, assignment is an expression, so it needs to keep the
             // value there in case the assignment is nested within a larger expression.
             ObjString *name = READ_STRING();

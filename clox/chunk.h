@@ -10,6 +10,8 @@ typedef enum {
     OP_TRUE,     // [opcode]
     OP_FALSE,    // [opcode]
     OP_POP,      // [opcode]
+    OP_SET_LOCAL, // [opcode] [index]
+    OP_GET_LOCAL, // [opcode] [index]
     OP_SET_GLOBAL, // [opcode] [index]
     OP_GET_GLOBAL, // [opcode] [index]
     OP_DEFINE_GLOBAL, // [opcode] [index]
