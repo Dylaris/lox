@@ -10,6 +10,8 @@ typedef enum {
     OP_TRUE,          // [opcode]
     OP_FALSE,         // [opcode]
     OP_POP,           // [opcode]
+    OP_SET_UPVALUE,   // [opcode] [index]
+    OP_GET_UPVALUE,   // [opcode] [index]
     OP_SET_LOCAL,     // [opcode] [index]
     OP_GET_LOCAL,     // [opcode] [index]
     OP_SET_GLOBAL,    // [opcode] [index]
@@ -30,6 +32,8 @@ typedef enum {
     OP_JUMP,          // [opcode] [offset] [offset]
     OP_LOOP,          // [opcode] [offset] [offset]
     OP_CALL,          // [opcode] [count]
+    OP_CLOSURE,       // [opcode] [index] ([isLocal] [index])*
+    OP_CLOSE_UPVALUE, // [opcode]
     OP_RETURN,        // [opcode]
 } OpCode;
 
