@@ -5,5 +5,6 @@
 #include "object.h"
 
 ObjFunction *compile(const char *source);
+void markCompilerRoots(void);
 
 #endif // clox_coimpiler_h
